@@ -1,0 +1,138 @@
+<!DOCTYPE html><!--HTML5 doctype-->
+<html  ng-app>
+<head>
+	<title>Your New Application</title>
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0" />
+	<style type="text/css">
+		/* Prevent copy paste for all elements except text fields */
+		*  { -webkit-user-select:none; -webkit-tap-highlight-color:rgba(255, 255, 255, 0); }
+		input, textarea  { -webkit-user-select:text; }
+		body { background-color:white; color:black }
+	</style>
+	<script src='intelxdk.js'></script>
+	<script type="text/javascript">
+		/* This code is used to run as soon as Intel activates */
+		var onDeviceReady=function(){
+		//hide splash screen
+		intel.xdk.device.hideSplashScreen();
+		};
+		document.addEventListener("intel.xdk.device.ready",onDeviceReady,false);
+	</script>
+<script src="js/angular.min.js"></script>
+        <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script src="js/flightController.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+    </head>
+    <body  style="background:#f8f8f8 url(img/background.jpg) left top repeat">
+        <!-- Triggers settings menu -->
+        <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#settings" style="float:right; margin-right:2%">
+        Settings
+        </button>
+        <!-- Triggers help menu -->
+        <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#help" style="float:right; margin-right:2%">
+        Help
+        </button>
+
+        <!-- Help Menu Dailog box -->
+        <div class="modal fade" id="help" tabindex="-1" role="dialog" aria-labelledby="Help Menu" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Tools & Tips</h4>
+              </div>
+              <div class="modal-body">
+                This App provides listing of flights with other relevent details. Flights are listed along with 
+                Origin and Destination field, Take off time and landing time, price, airline name and class. <br/> <br/>
+                Your can apply basic search or use Advance search (field wise). At one time, only 1 type can be enabled.<br/> <br/>
+                There is also option to sort the list. You can sort the list based on different parameters.
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      
+        <center>
+            <h2>Check <font color='grey'>Flights</font></h2>
+        </center>
+        <hr/><br/>
+
+        <div ng-controller="flightController">
+            <center ng-show="!advanceSearch">
+              <input type="text" ng-model="searchText" class="search-query" placeholder="Search" style="width:80%">
+            </center><br/>
+      
+            <!-- Help Menu Dailog box -->
+            <div class="modal fade" id="settings" tabindex="-1" role="dialog" aria-labelledby="Settings Menu" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">Settings</h4>
+                  </div>
+                  <div class="modal-body">
+                    <center>
+                        Search: <br/>
+                        <input type="checkbox" ng-model="advanceSearch"> Switch to Advanse Search <br/><hr/>
+                        Sort: <br/>
+                        <input type="checkbox" ng-model="enableSorting"> Enable Sorting <br/> <br/>
+                        <select ng-show="enableSorting" ng-model="sortingFactor">
+                            <option value="originCode"> Origin </option>
+                            <option value="destinationCode"> Destination</option>
+                            <option value="takeoffTime"> Take off time</option>
+                            <option value="landingTime"> Landing Time</option>
+                            <option value="price"> Price </option>
+                            <option value="airlineCode"> Airline </option>
+                            <option value="class"> Class </option>
+                        </select>
+                      </center>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                      <th>Origin</th>
+                      <th>Destination</th>
+                      <th>Take off time</th>
+                      <th>Landing time</th>
+                      <th>Price</th>
+                      <th>Airline</th>
+                      <th>Class</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-show="advanceSearch">
+                      <td><input type="text" ng-model="search.originCode" class="search-query" placeholder="Search"></td>
+                      <td><input type="text" ng-model="search.destinationCode" class="search-query" placeholder="Search"></td>
+                      <td><input type="text" ng-model="search.takeoffTime" class="search-query" placeholder="Search"></td>
+                      <td><input type="text" ng-model="search.landingTime" class="search-query" placeholder="Search"></td>
+                      <td><input type="text" ng-model="search.price" class="search-query" placeholder="Search"></td>
+                      <td><input type="text" ng-model="search.airlineCode" class="search-query" placeholder="Search"></td>
+                      <td><input type="text" ng-model="search.class" class="search-query" placeholder="Search"></td>
+                    </tr>
+                    <tr ng-repeat='flight in flightsData | orderBy:sortingFactor:reverse | filter:search:strict | filter:searchText'>
+                    <td>{{getAirport(flight.originCode)}}</td>
+                    <td>{{getAirport(flight.destinationCode)}}</td>
+                    <td>{{getDateObject(flight.takeoffTime)}}</td>
+                    <td>{{getDateObject(flight.landingTime)}}</td>
+                    <td>{{flight.price}}</td>
+                    <td>{{getAirline(flight.airlineCode)}}</td>
+                    <td>{{flight.class}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </body>
+</html>
+
